@@ -10,4 +10,4 @@ jQuery.expr.filters.animated = function( elem ) {
 	} ).length;
 };
 
-} );
+} ); 
