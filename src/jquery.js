@@ -1,4 +1,9 @@
-define( [
+/**
+ * params1： 模块
+ * params2: 加载完后的回调
+ */
+define( 
+	[
 	"./core",
 	"./selector",
 	"./traversing",
@@ -30,7 +35,8 @@ define( [
 	"./dimensions",
 	"./deprecated",
 	"./exports/amd"
-], function( jQuery ) {
+]
+, function( jQuery ) {
 
 return ( window.jQuery = window.$ = jQuery );
 
