@@ -76,6 +76,7 @@ var
 
 		// The jQuery object is actually just the init constructor 'enhanced'
 		// Need init if jQuery is called (just allow error to be thrown if not included)
+		// jQuery.fn.init === jQuery.prototype.init === $.fn.init.prototype.init 
 		return new jQuery.fn.init( selector, context );
 	},
 
@@ -97,7 +98,7 @@ jQuery.fn = jQuery.prototype = {
 	// The current version of jQuery being used
 	jquery: version,
 
-	constructor: jQuery,
+	constructor: jQuery,  ///修正指向
 
 	// Start with an empty selector
 	selector: "",
@@ -178,46 +179,57 @@ jQuery.fn = jQuery.prototype = {
 
 jQuery.extend = jQuery.fn.extend = function() {
 	var options, name, src, copy, copyIsArray, clone,
+		//目标对象
 		target = arguments[ 0 ] || {},
 		i = 1,
 		length = arguments.length,
 		deep = false;
 
+	//深拷贝
 	// Handle a deep copy situation
 	if ( typeof target === "boolean" ) {
 		deep = target;
-
+		//跳过boolean的情况
 		// Skip the boolean and the target
 		target = arguments[ i ] || {};
 		i++;
 	}
 
 	// Handle case when target is a string or something (possible in deep copy)
+	//不是对象 也不是函数
 	if ( typeof target !== "object" && !jQuery.isFunction( target ) ) {
 		target = {};
 	}
 
 	// Extend jQuery itself if only one argument is passed
+	//只有一个值的时候，就是直接给当前this(jQuery)挂在方法属性
+	//当在类中调用时挂载为静态方法
+	//当在原型上调用时挂在为实例方法
 	if ( i === length ) {
 		target = this;
 		i--;
 	}
 
+	//循环传入的参数
 	for ( ; i < length; i++ ) {
 
 		// Only deal with non-null/undefined values
+		//不是null的时候
 		if ( ( options = arguments[ i ] ) != null ) {
 
 			// Extend the base object
+			//for...in...对象
 			for ( name in options ) {
 				src = target[ name ];
 				copy = options[ name ];
 
 				// Prevent never-ending loop
+				//防止循环引用
 				if ( target === copy ) {
 					continue;
 				}
 
+				// 对象 或者 数组
 				// Recurse if we're merging plain objects or arrays
 				if ( deep && copy && ( jQuery.isPlainObject( copy ) ||
 					( copyIsArray = jQuery.isArray( copy ) ) ) ) {
@@ -231,10 +243,12 @@ jQuery.extend = jQuery.fn.extend = function() {
 					}
 
 					// Never move original objects, clone them
+					// 递归调用
 					target[ name ] = jQuery.extend( deep, clone, copy );
 
 				// Don't bring in undefined values
 				} else if ( copy !== undefined ) {
+					//基本类型的情况，直接赋值
 					target[ name ] = copy;
 				}
 			}
@@ -324,6 +338,11 @@ jQuery.extend( {
 	},
 
 	// Evaluates a script in a global context
+	/**
+	 * 严格模式的时候 生成一个script标签去执行，执行完后移除这个script标签
+	 * 否则，使用eval间接的执行，这样可以避免dom的创建、插入、删除等操作
+	 * @param {*} code 
+	 */
 	globalEval: function( code ) {
 		var script,
 			indirect = eval;
@@ -366,6 +385,7 @@ jQuery.extend( {
 		if ( isArrayLike( obj ) ) {
 			length = obj.length;
 			for ( ; i < length; i++ ) {
+				//todo 为什么需要中断执行？
 				if ( callback.call( obj[ i ], i, obj[ i ] ) === false ) {
 					break;
 				}
@@ -525,6 +545,7 @@ if ( typeof Symbol === "function" ) {
 /* jshint ignore: end */
 
 // Populate the class2type map
+//重新定义class2type
 jQuery.each( "Boolean Number String Function Array Date RegExp Object Error Symbol".split( " " ),
 function( i, name ) {
 	class2type[ "[object " + name + "]" ] = name.toLowerCase();
@@ -2946,6 +2967,7 @@ var rootjQuery,
 init.prototype = jQuery.fn;
 
 // Initialize central reference
+//初始化引用
 rootjQuery = jQuery( document );
 
 
